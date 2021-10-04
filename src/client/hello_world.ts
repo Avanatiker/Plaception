@@ -16,7 +16,6 @@ import path from 'path';
 import * as borsh from 'borsh';
 
 import {getPayer, getRpcUrl, createKeypairFromFile} from './utils';
-import {SCHEMA} from "borsh/borsh-ts/test/fuzz/transaction-example/transaction";
 
 /**
  * Connection to the network
