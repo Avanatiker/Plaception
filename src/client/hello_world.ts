@@ -195,11 +195,15 @@ export async function checkProgram(): Promise<void> {
   }
 }
 
-class Adder {
-  private value = 0;
+class Command {
+  private x = 0;
+  private y = 0;
+  private color = 0;
 
-  constructor(param: { value: number }) {
-    this.value = param.value;
+  constructor(param: { x: number; y: number; color: number; }) {
+    this.x = param.x;
+    this.y = param.y;
+    this.color = param.color;
   }
 }
 
@@ -208,8 +212,8 @@ class Adder {
  */
 export async function sayHello(): Promise<void> {
   console.log('Saying hello to', greetedPubkey.toBase58());
-  const value = new Adder({ value: 1337 });
-  const schema = new Map([[Adder, { kind: 'struct', fields: [['value', 'u32']] }]]);
+  const value = new Command({ x: 1, y: 1, color: 100 });
+  const schema = new Map([[Command, { kind: 'struct', fields: [['x', 'u16'], ['y', 'u16'], ['color', 'u32']] }]]);
   const instruction = new TransactionInstruction({
     keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
     programId,
