@@ -1,0 +1,27 @@
+
+[package]
+name = "plaception"
+version = "0.0.1"
+description = "decentralized implementation of r/place"
+authors = ["Constructor <Avanatiker@github.com>"]
+repository = "https://github.com/Avanatiker/Plaception"
+license = "Apache-2.0"
+homepage = "https://github.com/Avanatiker/"
+edition = "2018"
+
+[features]
+no-entrypoint = []
+
+[dependencies]
+borsh = "0.9.1"
+borsh-derive = "0.9.1"
+solana-program = "=1.7.9"
+num-traits = "0.2"
+
+[dev-dependencies]
+solana-program-test = "=1.7.9"
+solana-sdk = "=1.7.9"
+
+[lib]
+name = "plaception"
+crate-type = ["cdylib", "lib"]
