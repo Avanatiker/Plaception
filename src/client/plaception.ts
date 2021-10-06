@@ -56,7 +56,7 @@ const PROGRAM_SO_PATH = path.join(PROGRAM_PATH, 'plaception.so');
 const PROGRAM_KEYPAIR_PATH = path.join(PROGRAM_PATH, 'plaception-keypair.json');
 
 class Canvas {
-  canvas = new Array(9);
+  canvas = new Array(128);
   constructor(fields: { canvas: number[] } | undefined = undefined) {
     if (fields) {
       this.canvas = fields.canvas;
@@ -65,7 +65,7 @@ class Canvas {
 }
 
 const CanvasSchema = new Map([
-  [Canvas, {kind: 'struct', fields: [['canvas', ['u32', 9]]]}],
+  [Canvas, {kind: 'struct', fields: [['canvas', ['u32', 128]]]}],
 ]);
 
 /**
@@ -73,7 +73,7 @@ const CanvasSchema = new Map([
  */
 const CANVAS_SIZE = borsh.serialize(
   CanvasSchema,
-  new Canvas({canvas: new Array(9)}),
+  new Canvas({canvas: new Array(128)}),
 ).length;
 
 /**
@@ -154,7 +154,7 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
-  const CANVAS_SEED = 'c12341c234';
+  const CANVAS_SEED = 'c1234c41231234c';
   greetedPubkey = await PublicKey.createWithSeed(
     payer.publicKey,
     CANVAS_SEED,

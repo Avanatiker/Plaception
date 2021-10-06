@@ -12,7 +12,7 @@ use solana_program::{
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Canvas {
     /// Matrix of 16x16 u32
-    pub canvas: [u32; 9],
+    pub canvas: [u32; 128],
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
