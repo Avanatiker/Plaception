@@ -199,9 +199,9 @@ class Command {
   }
 }
 
-export async function place(): Promise<void> {
+export async function place(x: number, y: number, color: number): Promise<void> {
   console.log('Placing pixel at canvas:', greetedPubkey.toBase58());
-  const value = new Command({ x: 1, y: 1, color: 100 });
+  const value = new Command({ x: x, y: y, color: color });
   const schema = new Map([[Command, { kind: 'struct', fields: [['x', 'u8'], ['y', 'u8'], ['color', 'u32']] }]]);
   const instruction = new TransactionInstruction({
     keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
