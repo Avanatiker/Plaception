@@ -28,12 +28,12 @@ let connection: Connection;
 let payer: Keypair;
 
 /**
- * Hello world's program id
+ * Plaception's program id
  */
 let programId: PublicKey;
 
 /**
- * The public key of the account we are saying hello to
+ * The public key of the canvas account
  */
 let greetedPubkey: PublicKey;
 
@@ -44,8 +44,7 @@ const PROGRAM_PATH = path.resolve(__dirname, '../../dist/program');
 
 /**
  * Path to program shared object file which should be deployed on chain.
- * This file is created when running either:
- *   - `npm run build:program-c`
+ * This file is created when running:
  *   - `npm run build:program-rust`
  */
 const PROGRAM_SO_PATH = path.join(PROGRAM_PATH, 'plaception.so');
@@ -56,31 +55,25 @@ const PROGRAM_SO_PATH = path.join(PROGRAM_PATH, 'plaception.so');
  */
 const PROGRAM_KEYPAIR_PATH = path.join(PROGRAM_PATH, 'plaception-keypair.json');
 
-/**
- * The state of a greeting account managed by the hello world program
- */
-class GreetingAccount {
-  counter = 0;
-  constructor(fields: {counter: number} | undefined = undefined) {
+class Canvas {
+  canvas = new Array(9);
+  constructor(fields: { canvas: number[] } | undefined = undefined) {
     if (fields) {
-      this.counter = fields.counter;
+      this.canvas = fields.canvas;
     }
   }
 }
 
-/**
- * Borsh schema definition for greeting accounts
- */
-const GreetingSchema = new Map([
-  [GreetingAccount, {kind: 'struct', fields: [['counter', 'u32']]}],
+const CanvasSchema = new Map([
+  [Canvas, {kind: 'struct', fields: [['canvas', ['u32', 9]]]}],
 ]);
 
 /**
- * The expected size of each greeting account.
+ * The expected size of each canvas account
  */
-const GREETING_SIZE = borsh.serialize(
-  GreetingSchema,
-  new GreetingAccount(),
+const CANVAS_SIZE = borsh.serialize(
+  CanvasSchema,
+  new Canvas({canvas: new Array(9)}),
 ).length;
 
 /**
@@ -94,7 +87,7 @@ export async function establishConnection(): Promise<void> {
 }
 
 /**
- * Establish an account to pay for everything
+ * Establish an account to pay for expenses
  */
 export async function establishPayer(): Promise<void> {
   let fees = 0;
@@ -102,7 +95,7 @@ export async function establishPayer(): Promise<void> {
     const {feeCalculator} = await connection.getRecentBlockhash();
 
     // Calculate the cost to fund the greeter account
-    fees += await connection.getMinimumBalanceForRentExemption(GREETING_SIZE);
+    fees += await connection.getMinimumBalanceForRentExemption(CANVAS_SIZE);
 
     // Calculate the cost of sending transactions
     fees += feeCalculator.lamportsPerSignature * 100; // wag
@@ -131,7 +124,7 @@ export async function establishPayer(): Promise<void> {
 }
 
 /**
- * Check if the hello world BPF program has been deployed
+ * Check if the plaception BPF program has been deployed
  */
 export async function checkProgram(): Promise<void> {
   // Read program id from keypair file
@@ -141,7 +134,7 @@ export async function checkProgram(): Promise<void> {
   } catch (err) {
     const errMsg = (err as Error).message;
     throw new Error(
-      `Failed to read program keypair at '${PROGRAM_KEYPAIR_PATH}' due to error: ${errMsg}. Program may need to be deployed with \`solana program deploy dist/program/helloworld.so\``,
+      `Failed to read program keypair at '${PROGRAM_KEYPAIR_PATH}' due to error: ${errMsg}. Program may need to be deployed with \`solana program deploy dist/program/plaception.so\``,
     );
   }
 
@@ -150,7 +143,7 @@ export async function checkProgram(): Promise<void> {
   if (programInfo === null) {
     if (fs.existsSync(PROGRAM_SO_PATH)) {
       throw new Error(
-        'Program needs to be deployed with `solana program deploy dist/program/helloworld.so`',
+        'Program needs to be deployed with `solana program deploy dist/program/plaception.so`',
       );
     } else {
       throw new Error('Program needs to be built and deployed');
@@ -161,10 +154,10 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
-  const GREETING_SEED = 'hello';
+  const CANVAS_SEED = 'c12341c234';
   greetedPubkey = await PublicKey.createWithSeed(
     payer.publicKey,
-    GREETING_SEED,
+    CANVAS_SEED,
     programId,
   );
 
@@ -172,22 +165,21 @@ export async function checkProgram(): Promise<void> {
   const greetedAccount = await connection.getAccountInfo(greetedPubkey);
   if (greetedAccount === null) {
     console.log(
-      'Creating account',
+      'Creating canvas on account:',
       greetedPubkey.toBase58(),
-      'to say hello to',
     );
     const lamports = await connection.getMinimumBalanceForRentExemption(
-      GREETING_SIZE,
+      CANVAS_SIZE,
     );
 
     const transaction = new Transaction().add(
       SystemProgram.createAccountWithSeed({
         fromPubkey: payer.publicKey,
         basePubkey: payer.publicKey,
-        seed: GREETING_SEED,
+        seed: CANVAS_SEED,
         newAccountPubkey: greetedPubkey,
         lamports,
-        space: GREETING_SIZE,
+        space: CANVAS_SIZE,
         programId,
       }),
     );
@@ -195,21 +187,22 @@ export async function checkProgram(): Promise<void> {
   }
 }
 
-class Adder {
-  private value = 0;
+class Command {
+  private x = 0;
+  private y = 0;
+  private color = 0;
 
-  constructor(param: { value: number }) {
-    this.value = param.value;
+  constructor(param: { x: number; y: number; color: number; }) {
+    this.x = param.x;
+    this.y = param.y;
+    this.color = param.color;
   }
 }
 
-/**
- * Say hello
- */
-export async function sayHello(): Promise<void> {
-  console.log('Saying hello to', greetedPubkey.toBase58());
-  const value = new Adder({ value: 1337 });
-  const schema = new Map([[Adder, { kind: 'struct', fields: [['value', 'u32']] }]]);
+export async function place(): Promise<void> {
+  console.log('Placing pixel at canvas:', greetedPubkey.toBase58());
+  const value = new Command({ x: 1, y: 1, color: 100 });
+  const schema = new Map([[Command, { kind: 'struct', fields: [['x', 'u8'], ['y', 'u8'], ['color', 'u32']] }]]);
   const instruction = new TransactionInstruction({
     keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
     programId,
@@ -225,20 +218,19 @@ export async function sayHello(): Promise<void> {
 /**
  * Report the number of times the greeted account has been said hello to
  */
-export async function reportGreetings(): Promise<void> {
+export async function getCanvas(): Promise<void> {
   const accountInfo = await connection.getAccountInfo(greetedPubkey);
   if (accountInfo === null) {
-    throw 'Error: cannot find the greeted account';
+    throw 'Error: cannot find canvas account';
   }
   const greeting = borsh.deserialize(
-    GreetingSchema,
-    GreetingAccount,
+    CanvasSchema,
+    Canvas,
     accountInfo.data,
   );
   console.log(
     greetedPubkey.toBase58(),
-    'has been greeted',
-    greeting.counter,
-    'time(s)',
+    'has canvas:',
   );
+  console.log(greeting.canvas)
 }

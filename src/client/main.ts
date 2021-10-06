@@ -1,17 +1,17 @@
 /**
- * Hello world
+ * Plaception
  */
 
 import {
   establishConnection,
   establishPayer,
   checkProgram,
-  sayHello,
-  reportGreetings,
-} from './hello_world';
+  place,
+  getCanvas,
+} from './plaception';
 
 async function main() {
-  console.log("Let's say hello to a Solana account...");
+  console.log("Plaception test program initiated...");
 
   // Establish connection to the cluster
   await establishConnection();
@@ -22,11 +22,11 @@ async function main() {
   // Check if the program has been deployed
   await checkProgram();
 
-  // Say hello to an account
-  await sayHello();
+  // Place a pixel
+  await place();
 
-  // Find out how many times that account has been greeted
-  await reportGreetings();
+  // Gets canvas from account
+  await getCanvas();
 
   console.log('Success');
 }

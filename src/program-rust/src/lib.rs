@@ -10,14 +10,16 @@ use solana_program::{
 
 /// Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct GreetingAccount {
-    /// number of greetings
-    pub counter: u32,
+pub struct Canvas {
+    /// Matrix of 16x16 u32
+    pub canvas: [u32; 9],
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct Adder {
-    pub value: u32,
+pub struct Command {
+    pub x: u8,
+    pub y: u8,
+    pub color: u32,
 }
 
 // Declare and export the program's entrypoint
@@ -44,11 +46,19 @@ pub fn process_instruction(
     }
 
     // Increment and store the number of times the account has been greeted
-    let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
-    greeting_account.counter += Adder::try_from_slice(instruction_data).unwrap().value;
-    greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
+    let mut canvas_account = Canvas::try_from_slice(&account.data.borrow())?;
+    let command = Command::try_from_slice(instruction_data).unwrap();
 
-    msg!("Greeted {} time(s)!", greeting_account.counter);
+    let canvas_index = command.y * 3 + command.x;
+
+    // if canvas_index >= canvas_account.canvas.len() || canvas_account.canvas[canvas_index] != 0 {
+    //     return Err(ProgramError::Custom(1));
+    // }
+
+    canvas_account.canvas[canvas_index as usize] = command.color;
+    canvas_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
+
+    msg!("Placed {}@{}x{}", command.color, command.x, command.y);
 
     Ok(())
 }
@@ -82,21 +92,21 @@ mod test {
         let accounts = vec![account];
 
         assert_eq!(
-            GreetingAccount::try_from_slice(&accounts[0].data.borrow())
+            Canvas::try_from_slice(&accounts[0].data.borrow())
                 .unwrap()
                 .counter,
             0
         );
         process_instruction(&program_id, &accounts, &instruction_data).unwrap();
         assert_eq!(
-            GreetingAccount::try_from_slice(&accounts[0].data.borrow())
+            Canvas::try_from_slice(&accounts[0].data.borrow())
                 .unwrap()
                 .counter,
             1
         );
         process_instruction(&program_id, &accounts, &instruction_data).unwrap();
         assert_eq!(
-            GreetingAccount::try_from_slice(&accounts[0].data.borrow())
+            Canvas::try_from_slice(&accounts[0].data.borrow())
                 .unwrap()
                 .counter,
             2
