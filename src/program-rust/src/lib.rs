@@ -11,14 +11,14 @@ use solana_program::{
 /// Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Canvas {
-    /// Matrix of 32x32 u32
-    canvas: [u32; 1024],
+    /// Matrix of 16x16 u32
+    pub canvas: [u32; 9],
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Command {
-    pub x: u16,
-    pub y: u16,
+    pub x: u8,
+    pub y: u8,
     pub color: u32,
 }
 
@@ -49,7 +49,7 @@ pub fn process_instruction(
     let mut canvas_account = Canvas::try_from_slice(&account.data.borrow())?;
     let command = Command::try_from_slice(instruction_data).unwrap();
 
-    let canvas_index = command.y * 32 + command.x;
+    let canvas_index = command.y * 3 + command.x;
 
     // if canvas_index >= canvas_account.canvas.len() || canvas_account.canvas[canvas_index] != 0 {
     //     return Err(ProgramError::Custom(1));
@@ -58,7 +58,7 @@ pub fn process_instruction(
     canvas_account.canvas[canvas_index as usize] = command.color;
     canvas_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
 
-    // msg!("Greeted {} time(s)!", canvas_account.counter);
+    msg!("Placed {}@{}x{}", command.color, command.x, command.y);
 
     Ok(())
 }
