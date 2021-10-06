@@ -24,9 +24,9 @@ async function main() {
 
   // Place a pixel
   await place(0, 1, 0xffffff);
-  await place(1, 0, 0xffffff);
-  await place(1, 1, 0xffffff);
-  await place(0, 0, 0xffffff);
+  await place(1, 0, 0xffaabb);
+  await place(1, 1, 0x10ab4d);
+  await place(0, 0, 0xd9ec33);
 
   // Gets canvas from account
   await getCanvas();

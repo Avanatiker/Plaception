@@ -11,7 +11,7 @@ use solana_program::{
 /// Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Canvas {
-    /// Matrix of 16x16 u32
+    /// Matrix of 11x11 u32
     pub canvas: [u32; 128],
 }
 
@@ -27,8 +27,8 @@ entrypoint!(process_instruction);
 
 // Program entrypoint's implementation
 pub fn process_instruction(
-    program_id: &Pubkey, // Public key of the account the hello world program was loaded into
-    accounts: &[AccountInfo], // The account to say hello to
+    program_id: &Pubkey, // Public key of the account the plaception program was loaded into
+    accounts: &[AccountInfo], // The account that saves the canvas
     instruction_data: &[u8],
 ) -> ProgramResult {
     msg!("Plaception program entrypoint");
@@ -36,7 +36,7 @@ pub fn process_instruction(
     // Iterating accounts is safer then indexing
     let accounts_iter = &mut accounts.iter();
 
-    // Get the account to say hello to
+    // Get the account to send the pixel to
     let account = next_account_info(accounts_iter)?;
 
     // The account must be owned by the program in order to modify its data
@@ -49,7 +49,7 @@ pub fn process_instruction(
     let mut canvas_account = Canvas::try_from_slice(&account.data.borrow())?;
     let command = Command::try_from_slice(instruction_data).unwrap();
 
-    let canvas_index = command.y * 3 + command.x;
+    let canvas_index = command.y * 11 + command.x;
 
     // if canvas_index >= canvas_account.canvas.len() || canvas_account.canvas[canvas_index] != 0 {
     //     return Err(ProgramError::Custom(1));
