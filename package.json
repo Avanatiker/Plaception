@@ -23,7 +23,7 @@
     "pretty": "prettier --write '{,src/**/}*.ts'"
   },
   "dependencies": {
-    "@solana/web3.js": "^1.7.0",
+    "@solana/web3.js": "^1.34.0",
     "borsh": "^0.6.0",
     "mz": "^2.7.0",
     "yaml": "^1.10.2"
